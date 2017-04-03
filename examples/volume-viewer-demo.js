@@ -39,6 +39,7 @@ $(function() {
   window.viewer = BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
     var loading_div = $("#loading");
 
+    viewer.setInterpolationMode(1);
     ///////////////////////////
     // Set up global UI hooks.
     ///////////////////////////

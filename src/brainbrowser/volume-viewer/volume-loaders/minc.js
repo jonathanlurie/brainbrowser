@@ -259,16 +259,50 @@
           });
         }
 
-        target_image.data.set(
-          VolumeViewer.utils.nearestNeighbor(
-            source_image.data,
-            source_image.width,
-            source_image.height,
-            target_width,
-            target_height,
-            {block_size: 4}
-          )
-        );
+        var interpolation2D = BrainBrowser.config.get("interpolation2D");
+
+        switch (interpolation2D) {
+          case 0:
+          target_image.data.set(
+            VolumeViewer.utils.nearestNeighbor(
+              source_image.data,
+              source_image.width,
+              source_image.height,
+              target_width,
+              target_height,
+              {block_size: 4}
+            )
+          );
+            break;
+
+          case 1:
+          target_image.data.set(
+            VolumeViewer.utils.bilinear(
+              source_image.data,
+              source_image.width,
+              source_image.height,
+              target_width,
+              target_height,
+              {block_size: 4}
+            )
+          );
+          break;
+
+          default:
+          target_image.data.set(
+            VolumeViewer.utils.nearestNeighbor(
+              source_image.data,
+              source_image.width,
+              source_image.height,
+              target_width,
+              target_height,
+              {block_size: 4}
+            )
+          );
+
+        }
+
+
 
         return target_image;
       },
@@ -407,7 +441,62 @@
         var yh = height / y_fov;
         var zh = height / z_fov;
         return Math.min(yw, xw, zh, yh);
+      },
+
+
+
+      /**
+      * Perform a trilinear interpolation for an arbitrary floating point position.
+      * @param {Number} i - the position, possibly float, along the axis header.order[0]
+      * @param {Number} j - the position, possibly float, along the axis header.order[1]
+      * @param {Number} k - the position, possibly float, along the axis header.order[2]
+      * @return {Number} the interpolated value.
+      */
+      getIntensityValueTrilinear: function(i, j, k, time){
+
+        // we dont bother with the sides
+        if( i < 1 || i > header[header.order[0]].space_length-1 ||
+            j < 1 || j > header[header.order[1]].space_length-1 ||
+            k < 1 || k > header[header.order[2]].space_length-1)
+        {
+            return 0;
+        }
+
+        // For the sake of readability, let's assume that:
+        var iCeil = Math.ceil(i)
+        var jCeil = Math.ceil(j)
+        var kCeil = Math.ceil(k)
+
+        var iFloor = Math.floor(i)
+        var jFloor = Math.floor(j)
+        var kFloor = Math.floor(k)
+
+        // making a normalized space out of our coordinates
+        var iNorm = i - iFloor
+        var jNorm = j - jFloor
+        var kNorm = k - kFloor
+
+        var V000 = this.getIntensityValue(iFloor, jFloor, kFloor)
+        var V100 = this.getIntensityValue(iCeil, jFloor, kFloor)
+        var V010 = this.getIntensityValue(iFloor, jCeil, kFloor)
+        var V001 = this.getIntensityValue(iFloor, jFloor, kCeil)
+        var V101 = this.getIntensityValue(iCeil, jFloor, kCeil)
+        var V011 = this.getIntensityValue(iFloor, jCeil, kCeil )
+        var V110 = this.getIntensityValue(iCeil, jCeil, kFloor)
+        var V111 = this.getIntensityValue(iCeil, jCeil, kCeil)
+
+        var interpVal = V000 * (1 - iNorm) * (1 - jNorm) * (1 - kNorm) +
+                        V100 * iNorm * (1 - jNorm) * (1 - kNorm) +
+                        V010 * (1 - iNorm) * jNorm * (1 - kNorm) +
+                        V001 * (1 - iNorm) * (1 - jNorm) * kNorm +
+                        V101 * iNorm * (1 - jNorm) * kNorm +
+                        V011 * (1 - iNorm) * jNorm * kNorm +
+                        V110 * iNorm * jNorm * (1 - kNorm) +
+                        V111 * iNorm * jNorm * kNorm;
+
+        return interpVal
       }
+
     };
     return volume;
   };

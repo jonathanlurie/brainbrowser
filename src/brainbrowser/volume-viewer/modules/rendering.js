@@ -121,7 +121,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
         panel.reset();
       });
     });
-    
+
   };
 
   /**
@@ -149,4 +149,22 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
       });
     });
   };
+
+
+  /**
+  * Changes the interpolation mode for each displayed slice.
+  * @param mode {Number} mode - 0: nearestNeighbor, 1: bilinear
+  */
+  viewer.setInterpolationMode = function( mode ) {
+    mode = Math.round(mode);
+
+    if(mode >= 0 && mode <= 1){
+      BrainBrowser.config.set("interpolation2D", mode);
+    }else{
+      console.warn("Interpolation2D mode at " + mode + " is not allowed.");
+    }
+  }
+
+
+
 };

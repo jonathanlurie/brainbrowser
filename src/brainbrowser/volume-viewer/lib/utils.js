@@ -91,7 +91,7 @@
 
     /**
     * @doc function
-    * @name VolumeViewer.utils.nearestNeighbor
+    * @name VolumeViewer.utils.bilinear
     *
     * @param {array} source Source image data.
     * @param {number} width Width of source image.
@@ -107,7 +107,7 @@
     * @description
     * Scale an image using bilinear interpolation interpolation.
     * ```js
-    * BrainBrowser.VolumeViewer.utils.nearestNeighbor(image_data, 256, 256, 512, 512);
+    * BrainBrowser.VolumeViewer.utils.bilinear(image_data, 256, 256, 512, 512);
     * ```
     */
     bilinear:  function(source, width, height, target_width, target_height, options) {
@@ -120,7 +120,7 @@
       var source_y_offset, source_block_offset;
       var target;
       var target_x, target_y;
-      var target_y_offset, target_block_offset;
+      var target_y_offset, target_block_offset, target_y_offset_fix;
       var k;
 
       var colorInSourceTopLeft,
@@ -155,6 +155,7 @@
       for (target_y = 1; target_y < target_height-1; target_y++) {
 
         target_y_offset = target_y * target_width;
+        target_y_offset_fix = (target_y /*+ Math.floor(1/y_ratio)*/ ) * target_width;
         positionInSource.y = target_y * y_ratio;
         positionInSourceTopLeft.y = Math.floor(positionInSource.y)
         positionInSourceBotomLeft.y = Math.ceil(positionInSource.y)
@@ -163,7 +164,10 @@
 
         for (target_x = 1; target_x < target_width-1; target_x++)  {
 
-          target_block_offset = (target_y_offset + target_x) * block_size;
+          //target_block_offset = (target_y_offset + target_x) * block_size;
+
+          target_block_offset = (target_y_offset_fix + target_x /*+ Math.floor(1/x_ratio)*/ ) * block_size;
+
           positionInSource.x = target_x * x_ratio;
           positionInSourceTopLeft.x = Math.floor(positionInSource.x);
           positionInSourceBotomLeft.x = positionInSourceTopLeft.x;

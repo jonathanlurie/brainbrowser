@@ -39,7 +39,7 @@ $(function() {
   window.viewer = BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
     var loading_div = $("#loading");
 
-    viewer.setInterpolationMode(1);
+    //viewer.setInterpolationMode(1);
     ///////////////////////////
     // Set up global UI hooks.
     ///////////////////////////
@@ -189,6 +189,18 @@ $(function() {
 
       viewer.synced = synced;
     });
+
+    // enable or disable the linear interpolation
+    $("#interpolationTogle").change(function() {
+      var interpolationEnabled = $(this).is(":checked");
+      if (interpolationEnabled) {
+        viewer.setInterpolationMode(1);
+      }else{
+        viewer.setInterpolationMode(0);
+      }
+      viewer.redrawVolumes();
+    });
+
 
     // This will create an image of all the display panels
     // currently being shown in the viewer.

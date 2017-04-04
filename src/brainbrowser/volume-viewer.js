@@ -200,17 +200,17 @@
 */
 (function() {
   "use strict";
-  
+
   var VolumeViewer = BrainBrowser.VolumeViewer = {};
-  
+
   VolumeViewer.modules = {};
   VolumeViewer.volume_loaders = {};
-  
+
 
   /**
   * @doc function
   * @name VolumeViewer.static methods:start
-  * @param {string} element ID of a DOM element, or the DOM element itself, 
+  * @param {string} element ID of a DOM element, or the DOM element itself,
   * into which the viewer will be inserted.
   * @param {function} callback Callback function to which the viewer object
   * will be passed after creation.
@@ -272,7 +272,7 @@
   * ```
   */
   VolumeViewer.start = function(element, callback) {
-    
+
     /**
     * @doc object
     * @name viewer
@@ -307,7 +307,7 @@
 
     // Element where the viewer canvases will be loaded.
     var dom_element;
-    
+
     if (typeof element === "string") {
       dom_element = document.getElementById(element);
     } else {
@@ -371,7 +371,7 @@
     * @name viewer.events:volumeuiloaded
     *
     * @description
-    * Triggered after a UI is created for a newly loaded volume. The following information 
+    * Triggered after a UI is created for a newly loaded volume. The following information
     * will be passed in the event object:
     *
     * * **event.container**: the DOM element containing the UI.
@@ -384,7 +384,7 @@
     *    });
     * ```
     */
-      
+
     Object.keys(VolumeViewer.modules).forEach(function(m) {
       VolumeViewer.modules[m](viewer);
     });
@@ -395,6 +395,8 @@
 
     // Add keyboard controls
     keyboardControls();
+
+    viewer.setInterpolationMode(0);
 
     ////////////////////////////
     // Pass viewer to callback
@@ -416,7 +418,7 @@
 
         var key = event.which;
         var space_name, time;
-        
+
         var keys = {
           // CTRL
           17: function() {
@@ -475,7 +477,7 @@
           if (viewer.synced){
             viewer.syncPosition(panel, volume, axis_name);
           }
-          
+
           return false;
         }
 
@@ -529,7 +531,7 @@
 
           return false;
         }
-              
+
       }, false);
     }
 
@@ -537,4 +539,3 @@
   };
 
 })();
-
